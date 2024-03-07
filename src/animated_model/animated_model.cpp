@@ -32,22 +32,18 @@ void animated_model_structure::skinning_lbs()
     // Example of looping over the positions of the mesh
 
     int N_vertex = rigged_mesh.mesh_bind_pose.position.size();
-    for(int k_vertex=0; k_vertex<N_vertex; ++k_vertex) {
-        vec3 const& position_in_bind_pose = rigged_mesh.mesh_bind_pose.position[k_vertex]; // The "initial/bind pose" position p0
-        vec3 const& normal_in_bind_pose = rigged_mesh.mesh_bind_pose.normal[k_vertex];     // The "initial/bind pose" normal n0
-        vec3& position_to_be_deformed = rigged_mesh.mesh_deformed.position[k_vertex];      // The position to be deformed by LBS
-        vec3& normal_to_be_deformed = rigged_mesh.mesh_deformed.normal[k_vertex];         // The normal to be deformed by LBS
-        
-        mat4 transform = mat4();
-        for (int j = 0; j < skeleton.size(); j++)
+    for (int kv = 0; kv < N_vertex; ++kv)
+    {
+
+        mat4 M;
+        for (int k = 0; k < rigged_mesh.skinning_weight[kv].size(); ++k)
         {
-            //position_to_be_deformed = position_in_bind_pose;   // to be changed
-            cgp::mat4 Tj = skeleton.joint_matrix_global[j] * skeleton.joint_matrix_global_bind_pose[j].inverse_assuming_rigid_transform();
-            float w_ij = rigged_mesh.skinning_weight[k_vertex][j];
-            transform += w_ij * Tj;
+            float w = rigged_mesh.skinning_weight[kv][k];
+            M += w * skeleton.joint_matrix_global[k] * skeleton.joint_matrix_global_bind_pose[k].inverse_assuming_rigid_transform();
         }
-        position_to_be_deformed = (transform * vec4(position_in_bind_pose, 1.0)).xyz();
-        normal_to_be_deformed  = (transform * vec4(normal_in_bind_pose, 0.0)).xyz();
+
+        rigged_mesh.mesh_deformed.position[kv] = M.transform_position(rigged_mesh.mesh_bind_pose.position[kv]);
+        rigged_mesh.mesh_deformed.normal[kv] = M.transform_vector(rigged_mesh.mesh_bind_pose.normal[kv]);
     }
 }
 
