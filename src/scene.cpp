@@ -259,15 +259,15 @@ void scene_structure::display_gui()
 	ImGui::Checkbox("Spheres",&sk_drawable.display_joint_sphere);ImGui::SameLine();
 	ImGui::Checkbox("Bones",&sk_drawable.display_segments);
 	ImGui::Unindent();
-	ImGui::Checkbox("Dual Quaternion", &gui.is_dual_quaternion);
+	//ImGui::Checkbox("Dual Quaternion", &gui.is_dual_quaternion);
 	
-	ImGui::Text("Model: "); ImGui::SameLine();
-	bool type = ImGui::RadioButton("Cylinder",(int*)&model_type,cylinder); ImGui::SameLine();
-	type |= ImGui::RadioButton("Bar",(int*)&model_type,bar); ImGui::SameLine();
-	type |= ImGui::RadioButton("Spot",(int*)&model_type,spot);
-	if(type) {
-		initialize_model();
-	}
+	//ImGui::Text("Model: "); ImGui::SameLine();
+	//bool type = ImGui::RadioButton("Cylinder",(int*)&model_type,cylinder); ImGui::SameLine();
+	//type |= ImGui::RadioButton("Bar",(int*)&model_type,bar); ImGui::SameLine();
+	//type |= ImGui::RadioButton("Spot",(int*)&model_type,spot);
+	
+	//initialize_model();
+	
 
 	ImGui::Text("Motion: "); ImGui::SameLine();
 	ImGui::Checkbox("Bending", &gui.is_bending_motion); ImGui::SameLine();
