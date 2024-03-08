@@ -18,7 +18,11 @@ struct skeleton_structure {
     cgp::numarray<int> parent_index;
 
     // Angular velocities
-    cgp::numarray<cgp::vec3> angular_velocity;
+    cgp::numarray<cgp::vec3> angular_velocities;
+
+    // Compute angular velocity vector
+    void compute_angular_velocity(int joint, cgp::vec3 const& rotation_axis, float rotation_angle);
+
 
     // Return the number of joints in this skeleton
     int size() const;

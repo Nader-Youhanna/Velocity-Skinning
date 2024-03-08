@@ -216,11 +216,15 @@ void scene_structure::set_skinning_weights()
 	model.rigged_mesh.velocity_skinning_weight = compute_velocity_skinning_weights_cylinder(model.rigged_mesh.mesh_bind_pose, model.skeleton, model.rigged_mesh.skinning_weight);
 }
 
+
 void scene_structure::apply_rotation_to_joint(int joint, vec3 const& rotation_axis, float rotation_angle) {
 	rotation_transform R = rotation_axis_angle(normalize(rotation_axis), rotation_angle);
 	mat4& T = model.skeleton.joint_matrix_local[joint];
 
 	T.set_block_linear( R*mat3(T) );
+
+	// Compute angular velocity
+	model.skeleton.compute_angular_velocity(joint, rotation_axis, rotation_angle);
 }
 
 void scene_structure::animate_skeleton() {

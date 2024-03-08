@@ -54,3 +54,10 @@ cgp::numarray<int> skeleton_structure::child(int joint_index) const {
     }
     return children_index;
 }
+
+
+void skeleton_structure::compute_angular_velocity(int joint, cgp::vec3 const& rotation_axis, float rotation_angle)
+{
+    cgp::vec3 angular_velocity = cgp::normalize(rotation_axis) * rotation_angle;
+    angular_velocities[joint] = angular_velocity;
+}
