@@ -8,6 +8,8 @@ struct rigged_model_structure {
     cgp::mesh mesh_deformed;   // Deformed mesh
     cgp::numarray<cgp::numarray<float> > skinning_weight; //skinning_weight[k_vertex][k_joint]
     cgp::numarray<cgp::numarray<float>> velocity_skinning_weight;
+    cgp::numarray<cgp::numarray<cgp::vec3>> linear_velocities;
+    cgp::numarray<cgp::numarray<cgp::vec3>> rotational_velocities;
 };
 
 
