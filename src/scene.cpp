@@ -3,7 +3,21 @@
 #include "scene.hpp"
 
 using namespace cgp;
+using namespace std;
 
+
+void print_matrix(cgp::mat4 mat)
+{
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			std::cout << mat[i][j] << " ";
+		}
+		std::cout << std::endl;
+	}
+	std::cout << "--------------------------------------------\n";
+}
 
 numarray<numarray<float> > compute_skinning_weights_generic(cgp::mesh const& m, skeleton_structure const& skeleton, float power_factor) 
 {
@@ -113,8 +127,40 @@ numarray<numarray<float> > compute_skinning_weights_cylinder(cgp::mesh const& m,
 		skinning_weight[k][1] = w1;
 		skinning_weight[k][2] = 0;
 	}
+
 	return skinning_weight;
 }
+
+numarray<numarray<float> > compute_velocity_skinning_weights_cylinder(cgp::mesh const& m, skeleton_structure const& skeleton, numarray<numarray<float>> const& skinning_weights)
+{
+	std::cout << "Computing velocity skinning weights ...\n";
+	
+	int N_vertex = m.position.size();
+	int N_joint = skeleton.parent_index.size();
+	numarray<numarray<float> > velocity_skinning_weight;
+	velocity_skinning_weight.resize(N_vertex);
+	for (int k = 0; k < N_vertex; ++k) {
+		velocity_skinning_weight[k].resize(N_joint);
+		
+		for (int j = 0; j < N_joint; ++j)
+		{
+			int parent_joint = j;
+			while (parent_joint != -1)
+			{
+				velocity_skinning_weight[k][parent_joint] += skinning_weights[k][j];
+				parent_joint = skeleton.parent_index[parent_joint];
+			}
+		}
+	}
+
+	//int v = 2000;
+	//std::cout << skinning_weights[v][0] << " " << skinning_weights[v][1] << " " << skinning_weights[v][2] << std::endl;
+	//std::cout << velocity_skinning_weight[v][0] << " " << velocity_skinning_weight[v][1] << " " << velocity_skinning_weight[v][2] << std::endl;
+
+	return velocity_skinning_weight;
+
+}
+
 
 
 animated_model_structure create_cylinder();
@@ -163,6 +209,7 @@ void scene_structure::set_skinning_weights()
 {
 	if(model_type==cylinder || model_type==bar) {
 		model.rigged_mesh.skinning_weight = compute_skinning_weights_cylinder(model.rigged_mesh.mesh_bind_pose, model.skeleton, gui.power_factor_skinning_weight);
+		model.rigged_mesh.velocity_skinning_weight = compute_velocity_skinning_weights_cylinder(model.rigged_mesh.mesh_bind_pose, model.skeleton, model.rigged_mesh.skinning_weight);
 	}
 	if(model_type==spot) {
 		model.rigged_mesh.skinning_weight = compute_skinning_weights_generic(model.rigged_mesh.mesh_bind_pose, model.skeleton, gui.power_factor_skinning_weight);
