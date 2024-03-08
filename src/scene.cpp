@@ -153,7 +153,7 @@ numarray<numarray<float> > compute_velocity_skinning_weights_cylinder(cgp::mesh 
 		}
 	}
 
-	//int v = 2000;
+	//int v = 1200;
 	//std::cout << skinning_weights[v][0] << " " << skinning_weights[v][1] << " " << skinning_weights[v][2] << std::endl;
 	//std::cout << velocity_skinning_weight[v][0] << " " << velocity_skinning_weight[v][1] << " " << velocity_skinning_weight[v][2] << std::endl;
 
@@ -209,11 +209,11 @@ void scene_structure::set_skinning_weights()
 {
 	if(model_type==cylinder || model_type==bar) {
 		model.rigged_mesh.skinning_weight = compute_skinning_weights_cylinder(model.rigged_mesh.mesh_bind_pose, model.skeleton, gui.power_factor_skinning_weight);
-		model.rigged_mesh.velocity_skinning_weight = compute_velocity_skinning_weights_cylinder(model.rigged_mesh.mesh_bind_pose, model.skeleton, model.rigged_mesh.skinning_weight);
 	}
 	if(model_type==spot) {
 		model.rigged_mesh.skinning_weight = compute_skinning_weights_generic(model.rigged_mesh.mesh_bind_pose, model.skeleton, gui.power_factor_skinning_weight);
 	}
+	model.rigged_mesh.velocity_skinning_weight = compute_velocity_skinning_weights_cylinder(model.rigged_mesh.mesh_bind_pose, model.skeleton, model.rigged_mesh.skinning_weight);
 }
 
 void scene_structure::apply_rotation_to_joint(int joint, vec3 const& rotation_axis, float rotation_angle) {

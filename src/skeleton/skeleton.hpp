@@ -17,6 +17,8 @@ struct skeleton_structure {
     //   index_of_parent = parent_index[current_index]
     cgp::numarray<int> parent_index;
 
+    // Angular velocities
+    cgp::numarray<cgp::vec3> angular_velocity;
 
     // Return the number of joints in this skeleton
     int size() const;
