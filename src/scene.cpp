@@ -209,13 +209,16 @@ void scene_structure::initialize()
 
 void scene_structure::set_skinning_weights()
 {
-	if(model_type==cylinder || model_type==bar) {
+	if (model_type == cylinder || model_type == bar) {
 		model.rigged_mesh.skinning_weight = compute_skinning_weights_cylinder(model.rigged_mesh.mesh_bind_pose, model.skeleton, gui.power_factor_skinning_weight);
 	}
-	if(model_type==spot) {
+	if (model_type == spot) {
 		model.rigged_mesh.skinning_weight = compute_skinning_weights_generic(model.rigged_mesh.mesh_bind_pose, model.skeleton, gui.power_factor_skinning_weight);
 	}
-	model.rigged_mesh.velocity_skinning_weight = compute_velocity_skinning_weights_cylinder(model.rigged_mesh.mesh_bind_pose, model.skeleton, model.rigged_mesh.skinning_weight);
+	if (gui.is_velocity_skinning)
+	{
+		model.rigged_mesh.velocity_skinning_weight = compute_velocity_skinning_weights_cylinder(model.rigged_mesh.mesh_bind_pose, model.skeleton, model.rigged_mesh.skinning_weight);
+	}
 }
 
 
@@ -223,10 +226,13 @@ void scene_structure::apply_rotation_to_joint(int joint, vec3 const& rotation_ax
 	rotation_transform R = rotation_axis_angle(normalize(rotation_axis), rotation_angle);
 	mat4& T = model.skeleton.joint_matrix_local[joint];
 
-	T.set_block_linear( R*mat3(T) );
+	T.set_block_linear(R * mat3(T));
 
-	// Compute angular velocity
-	model.skeleton.compute_angular_velocity(joint, rotation_axis, rotation_angle);
+	if (gui.is_velocity_skinning)
+	{
+		// Compute angular velocity
+		model.skeleton.compute_angular_velocity(joint, rotation_axis, rotation_angle);
+	}
 }
 
 void scene_structure::animate_skeleton() {
@@ -281,8 +287,10 @@ void scene_structure::display_frame()
 	
 	model.skinning_lbs();
 
-	model.compute_rotational_velocities();
-
+	if (gui.is_velocity_skinning)
+	{
+		model.compute_rotational_velocities();
+	}
 	if(gui.is_dual_quaternion) {
 		model.skinning_dqs();
 	}
@@ -315,6 +323,9 @@ void scene_structure::display_gui()
 	ImGui::Checkbox("Spheres",&sk_drawable.display_joint_sphere);ImGui::SameLine();
 	ImGui::Checkbox("Bones",&sk_drawable.display_segments);
 	ImGui::Unindent();
+
+	ImGui::Checkbox("Velocity Skinning", &gui.is_velocity_skinning);
+
 	//ImGui::Checkbox("Dual Quaternion", &gui.is_dual_quaternion);
 	
 	//ImGui::Text("Model: "); ImGui::SameLine();

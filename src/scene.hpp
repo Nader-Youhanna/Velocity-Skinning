@@ -20,6 +20,8 @@ struct gui_parameters {
 
 	bool is_bending_motion = true;
 	bool is_twisting_motion = false;
+
+	bool is_velocity_skinning = true;
 };
 
 enum surface_model {cylinder, bar, spot};
