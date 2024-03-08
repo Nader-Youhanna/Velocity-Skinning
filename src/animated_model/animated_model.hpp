@@ -24,4 +24,6 @@ struct animated_model_structure {
     // Compute Dual Quaternion Skinning deformation
     //  Once computed, the rigged_mesh should contain the updated deformed meshes
     void skinning_dqs();
+
+    void compute_rotational_velocities();
 };

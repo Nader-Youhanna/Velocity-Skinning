@@ -193,3 +193,18 @@ void animated_model_structure::skinning_dqs()
     }
 }
 
+void animated_model_structure::compute_rotational_velocities()
+{
+    int N_vertex = rigged_mesh.mesh_bind_pose.position.size();
+    int N_joint = skeleton.size();
+    for (int kv = 0; kv < N_vertex; ++kv)
+    {
+        cgp::vec3 pi = rigged_mesh.mesh_deformed.position[kv];
+        for (int kj = 0; kj < N_joint; ++kj)
+        {
+            cgp::vec3 angular_velocity = skeleton.angular_velocities[kj];
+            cgp::vec3 pu = skeleton.joint_matrix_global_bind_pose[kj].get_block_translation();            
+            rigged_mesh.rotational_velocities[kv][kj] = cgp::cross(angular_velocity, (pu - pi));
+        }
+    }
+}

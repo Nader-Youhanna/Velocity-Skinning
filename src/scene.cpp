@@ -179,6 +179,8 @@ void scene_structure::initialize_model()
 		model = create_spot();
 	}
 
+	model.skeleton.angular_velocities.resize_clear(model.skeleton.parent_index.size());
+
 	set_skinning_weights();
 
 	model_drawable.clear();
@@ -278,6 +280,9 @@ void scene_structure::display_frame()
 
 	
 	model.skinning_lbs();
+
+	model.compute_rotational_velocities();
+
 	if(gui.is_dual_quaternion) {
 		model.skinning_dqs();
 	}
