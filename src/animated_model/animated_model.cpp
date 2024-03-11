@@ -211,8 +211,15 @@ void animated_model_structure::compute_rotational_velocities()
     }
 }
 
-void animated_model_structure::apply_floppy_transform(numarray<numarray<vec3>>& linear_velocities, numarray<numarray<vec3>>& rotational_velocities)
+void animated_model_structure::apply_floppy_transform()
 {
     // Apply floppy transform to linear velocities
-    linear_velocities *= -k_floppy;
+    rigged_mesh.linear_velocities *= -k_floppy;
+
+    // Apply floppy transform to rotational velocities
+    for (int kv = 0; kv < N_vertex; kv++) {
+        for (int kj = 0; kj < N_joint; kj++) {
+            double angle = -k_floppy * cgp::norm(rigged_mesh.rotational_velocities[kv][kj]);
+        }
+    }
 }

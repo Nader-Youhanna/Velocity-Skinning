@@ -28,5 +28,5 @@ struct animated_model_structure {
 
     void compute_rotational_velocities();
 
-    void apply_floppy_transform(numarray<numarray<vec3>>& linear_velocities, numarray<numarray<vec3>>& rotational_velocities);
+    void apply_floppy_transform();
 };
