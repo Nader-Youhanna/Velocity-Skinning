@@ -34,7 +34,6 @@ void animated_model_structure::skinning_lbs()
     int N_vertex = rigged_mesh.mesh_bind_pose.position.size();
     for (int kv = 0; kv < N_vertex; ++kv)
     {
-
         mat4 M;
         for (int k = 0; k < rigged_mesh.skinning_weight[kv].size(); ++k)
         {
@@ -214,6 +213,9 @@ void animated_model_structure::compute_rotational_velocities()
 
 void animated_model_structure::apply_floppy_transform()
 {
+    int N_vertex = rigged_mesh.mesh_bind_pose.position.size();
+    int N_joint = skeleton.size();
+
     // Apply floppy transform to linear velocities
     rigged_mesh.linear_velocities *= -k_floppy;
 
@@ -239,7 +241,7 @@ void animated_model_structure::compute_linear_velocities()
     for (int kj = 0; kj < N_joint; kj++)
     {
         mat4 Tj = skeleton.joint_matrix_global[kj]
-            * skeleton.joint_matrix_global_bind_pose[kj]
+            * skeleton.joint_matrix_global_last_frame[kj]
             .inverse_assuming_rigid_transform();
         vec3 translation = Tj.get_block_translation();
 
