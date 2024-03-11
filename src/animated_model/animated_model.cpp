@@ -10,9 +10,9 @@ using namespace cgp;
 void animated_model_structure::skinning_lbs()
 {
     // ************************************************************** //
-	// TO DO: Compute the Linear Blend Skinning (LBS) deformation
-	// ...
-	// ************************************************************** //
+    // TO DO: Compute the Linear Blend Skinning (LBS) deformation
+    // ...
+    // ************************************************************** //
     //
     // Help:
     //     - The function should update the values of rigged_mesh.mesh_deformed.position based on the skeleton and bind pose (rigged_mesh.mesh_bind_pose.position)
@@ -140,16 +140,16 @@ public:
 
     quaternion q;
     quaternion q_eps;
-//private:
+    //private:
 };
 
 
 void animated_model_structure::skinning_dqs()
 {
     // ************************************************************** //
-	// TO DO: Compute Dual Quaternion Skinning (DQS) deformation
-	// ...
-	// ************************************************************** //
+    // TO DO: Compute Dual Quaternion Skinning (DQS) deformation
+    // ...
+    // ************************************************************** //
     //
     // Help:
     //     - Given a mat4 representing a rigid transformation, the following syntax allows to access the rotation and translation part:
@@ -159,16 +159,17 @@ void animated_model_structure::skinning_dqs()
     //     - The quaternion of a rotation_transform can be accessed via {rotation_transform}.get_quaternion();
     //     - The structure quaternion is a specialized type derived from a vec4. You can access to its .x .y .z .w component similarily to a vec4.
     //     
-    
+
     // Define number of vertices
     int N_vertex = rigged_mesh.mesh_bind_pose.position.size();
-    for (int k_vertex = 0; k_vertex < N_vertex; ++k_vertex) {
+    for (int k_vertex = 0; k_vertex < N_vertex; ++k_vertex)
+    {
         // For each vertex
         vec3 const& position_in_bind_pose = rigged_mesh.mesh_bind_pose.position[k_vertex]; // The "initial/bind pose" position p0
         vec3 const& normal_in_bind_pose = rigged_mesh.mesh_bind_pose.normal[k_vertex];     // The "initial/bind pose" normal n0
         vec3& position_to_be_deformed = rigged_mesh.mesh_deformed.position[k_vertex];      // The position to be deformed by LBS
         vec3& normal_to_be_deformed = rigged_mesh.mesh_deformed.normal[k_vertex];         // The normal to be deformed by LBS
-        
+
         dual_quat transform_q;
         for (int j = 0; j < skeleton.size(); j++)
         {
@@ -177,12 +178,12 @@ void animated_model_structure::skinning_dqs()
             dual_quat qi(Tj);
             transform_q += qi * w_ij;
         }
-    
+
         transform_q.normalize();
         quaternion rot;
         vec3 t;
         transform_q.extract_rotation_translation(rot, t);
-        
+
         quaternion v(position_in_bind_pose, 0.);
         position_to_be_deformed = (rot * v * conjugate(rot)).xyz();
         position_to_be_deformed += t;
@@ -205,7 +206,7 @@ void animated_model_structure::compute_rotational_velocities()
         {
             rigged_mesh.rotational_velocities[kv].resize_clear(N_joint);
             cgp::vec3 angular_velocity = skeleton.angular_velocities[kj];
-            cgp::vec3 pu = skeleton.joint_matrix_global_bind_pose[kj].get_block_translation();            
+            cgp::vec3 pu = skeleton.joint_matrix_global_bind_pose[kj].get_block_translation();
             rigged_mesh.rotational_velocities[kv][kj] = cgp::cross(angular_velocity, (pu - pi));
         }
     }
@@ -215,4 +216,25 @@ void animated_model_structure::apply_floppy_transform(numarray<numarray<vec3>>& 
 {
     // Apply floppy transform to linear velocities
     linear_velocities *= -k_floppy;
+}
+void animated_model_structure::compute_linear_velocities()
+{
+    int N_vertex = rigged_mesh.mesh_bind_pose.position.size();
+    int N_joint = skeleton.size();
+    rigged_mesh.linear_velocities.resize_clear(N_vertex);
+    for (int kv = 0; kv < N_vertex; ++kv)
+    {
+        rigged_mesh.linear_velocities[kv].resize_clear(N_joint);
+    }
+
+    for (int kj = 0; kj < N_joint; kj++)
+    {
+        mat4 Tj = skeleton.joint_matrix_global[kj] * skeleton.joint_matrix_global_bind_pose[kj].inverse_assuming_rigid_transform();
+        vec3 translation = Tj.get_block_translation();
+
+        for (int kv = 0; kv < N_vertex; kv++)
+        {
+            rigged_mesh.linear_velocities[kv][kj] = translation;
+        }
+    }
 }

@@ -285,12 +285,13 @@ void scene_structure::display_frame()
 
 
 	
-	model.skinning_lbs();
 
 	if (gui.is_velocity_skinning)
 	{
+		model.compute_linear_velocities();
 		model.compute_rotational_velocities();
 	}
+	model.skinning_lbs();
 	if(gui.is_dual_quaternion) {
 		model.skinning_dqs();
 	}
