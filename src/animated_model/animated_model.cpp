@@ -229,10 +229,23 @@ void animated_model_structure::compute_linear_velocities(bool first_frame)
     {
         for (int kj = 0; kj < N_joint; kj++)
         {
-            mat4 Tj = skeleton.joint_matrix_global[kj]
-                * skeleton.joint_matrix_global_last_frame[kj]
+            mat4 Tj_local = skeleton.joint_matrix_local[kj]
+                * skeleton.joint_matrix_local_last_frame[kj]
                 .inverse_assuming_rigid_transform();
-            vec3 translation = Tj.get_block_translation();
+            mat4 M_parent;
+            if (kj == 0)
+            {
+                M_parent = skeleton.joint_matrix_local[0];
+            }
+            else
+            {
+                mat4 M_parent = skeleton.joint_matrix_global[skeleton.parent_index[kj]];
+            }
+            M_parent.set_block_translation(vec3(0.f, 0.f, 0.f));
+            mat4 Tj_global = M_parent * Tj_local;
+
+            vec3 translation = Tj_global.get_block_translation();
+
 
             for (int kv = 0; kv < N_vertex; kv++)
             {
@@ -240,6 +253,9 @@ void animated_model_structure::compute_linear_velocities(bool first_frame)
             }
         }
     }
+ /*   int kv = 2400;
+    int kj = 2;
+    std::cout << "Linear Velocity: " << rigged_mesh.linear_velocities[kv][kj] << std::endl;*/
 }
 
 void animated_model_structure::apply_floppy_transform()

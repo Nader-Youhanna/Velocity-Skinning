@@ -65,5 +65,5 @@ void skeleton_structure::compute_angular_velocity(int joint, cgp::vec3 const& ro
 
 void skeleton_structure::update_last_frame_matrix()
 {
-    joint_matrix_global_last_frame = joint_matrix_global;
+    joint_matrix_local_last_frame = joint_matrix_local;
 }

@@ -246,7 +246,7 @@ void scene_structure::animate_skeleton() {
 		if(gui.is_bending_motion) {
 			apply_rotation_to_joint(1, {0,1,0}, Pi/2*std::cos(timer.t));
 			//apply_rotation_to_joint(1, {0,1,0}, timer.t);
-			//apply_rotation_to_joint(1, {0,1,0}, 0.05);
+			//apply_rotation_to_joint(1, {0,1,0}, 0.0);
 		}
 	}
 
