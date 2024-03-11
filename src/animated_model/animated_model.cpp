@@ -197,23 +197,6 @@ void animated_model_structure::skinning_dqs()
     }
 }
 
-void animated_model_structure::compute_rotational_velocities()
-{
-    int N_vertex = rigged_mesh.mesh_bind_pose.position.size();
-    int N_joint = skeleton.size();
-    rigged_mesh.rotational_velocities.resize_clear(N_vertex);
-    for (int kv = 0; kv < N_vertex; ++kv)
-    {
-        cgp::vec3 pi = rigged_mesh.mesh_deformed.position[kv];
-        for (int kj = 0; kj < N_joint; ++kj)
-        {
-            rigged_mesh.rotational_velocities[kv].resize_clear(N_joint);
-            cgp::vec3 angular_velocity = skeleton.angular_velocities[kj];
-            cgp::vec3 pu = skeleton.joint_matrix_global_bind_pose[kj].get_block_translation();
-            rigged_mesh.rotational_velocities[kv][kj] = cgp::cross(angular_velocity, (pu - pi));
-        }
-    }
-}
 
 void animated_model_structure::apply_floppy_transform(cgp::numarray<cgp::vec3>& result_transform, cgp::vec3 rotation_axis)
 {
@@ -243,23 +226,32 @@ void animated_model_structure::apply_floppy_transform(cgp::numarray<cgp::vec3>& 
         result_transform[kv] = psi;
     }
 }
-void animated_model_structure::compute_linear_velocities()
+
+void animated_model_structure::compute_velocities(bool first_frame)
 {
     int N_vertex = rigged_mesh.mesh_bind_pose.position.size();
     int N_joint = skeleton.size();
+    // Resize and clear matrices
     rigged_mesh.linear_velocities.resize_clear(N_vertex);
+    rigged_mesh.rotational_velocities.resize_clear(N_vertex);
     for (int kv = 0; kv < N_vertex; ++kv)
     {
         rigged_mesh.linear_velocities[kv].resize_clear(N_joint);
+        rigged_mesh.rotational_velocities[kv].resize_clear(N_joint);
     }
 
+    // If not first frame, then last frame matrices exist
     if (!first_frame)
     {
+        // for each joint kj
         for (int kj = 0; kj < N_joint; kj++)
         {
+            // Get the local transformation matrix T_j
             mat4 Tj_local = skeleton.joint_matrix_local[kj]
                 * skeleton.joint_matrix_local_last_frame[kj]
                 .inverse_assuming_rigid_transform();
+
+            // Get the parent matrix M_parent
             mat4 M_parent;
             if (kj == 0)
             {
@@ -269,37 +261,36 @@ void animated_model_structure::compute_linear_velocities()
             {
                 mat4 M_parent = skeleton.joint_matrix_global[skeleton.parent_index[kj]];
             }
+
+            // Set the parent matrix translation to zero
             M_parent.set_block_translation(vec3(0.f, 0.f, 0.f));
+
+            // Get the global transformation matrix
             mat4 Tj_global = M_parent * Tj_local;
 
+            // Extract the translation
             vec3 translation = Tj_global.get_block_translation();
 
+            // Extract the rotation
+            mat3 R_mat = Tj_global.get_block_linear();
+            rotation_transform rot = rotation_transform::from_matrix(R_mat);
+            vec3 rot_axis; float angle;
+            rot.to_axis_angle(rot_axis, angle);
+            vec3 angular_velocity = cgp::normalize(rot_axis) * angle;
 
+            // for each vertex kv
             for (int kv = 0; kv < N_vertex; kv++)
             {
+
+                // Set the linear velocities
                 rigged_mesh.linear_velocities[kv][kj] = translation;
+
+                // Set the rotational velocities
+                vec3 pi = rigged_mesh.mesh_deformed.position[kv];
+                cgp::vec3 pu = skeleton.joint_matrix_global_bind_pose[kj].get_block_translation();
+                rigged_mesh.rotational_velocities[kv][kj] = cgp::cross(angular_velocity, (pu - pi));
+
             }
-        }
-    }
- /*   int kv = 2400;
-    int kj = 2;
-    std::cout << "Linear Velocity: " << rigged_mesh.linear_velocities[kv][kj] << std::endl;*/
-}
-
-void animated_model_structure::apply_floppy_transform()
-{
-    int N_vertex = rigged_mesh.mesh_bind_pose.position.size();
-    int N_joint = skeleton.size();
-
-    // Apply floppy transform to linear velocities
-    rigged_mesh.linear_velocities *= -k_floppy;
-
-    // Apply floppy transform to rotational velocities
-    for (int kv = 0; kv < N_vertex; kv++)
-    {
-        for (int kj = 0; kj < N_joint; kj++)
-        {
-            double angle = -k_floppy * cgp::norm(rigged_mesh.rotational_velocities[kv][kj]);
         }
     }
 }
