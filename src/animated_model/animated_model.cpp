@@ -210,3 +210,9 @@ void animated_model_structure::compute_rotational_velocities()
         }
     }
 }
+
+void animated_model_structure::apply_floppy_transform(numarray<numarray<vec3>>& linear_velocities, numarray<numarray<vec3>>& rotational_velocities)
+{
+    // Apply floppy transform to linear velocities
+    linear_velocities *= -k_floppy;
+}

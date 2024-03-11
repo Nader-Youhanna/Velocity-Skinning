@@ -16,6 +16,7 @@ struct rigged_model_structure {
 struct animated_model_structure {
     rigged_model_structure rigged_mesh;
     skeleton_structure skeleton;
+    double k_floppy = 1;
 
     // Compute the Linear Blend Skinning deformation
     //  Once computed, the rigged_mesh contains the updated deformed meshes
@@ -26,4 +27,6 @@ struct animated_model_structure {
     void skinning_dqs();
 
     void compute_rotational_velocities();
+
+    void apply_floppy_transform(numarray<numarray<vec3>>& linear_velocities, numarray<numarray<vec3>>& rotational_velocities);
 };
