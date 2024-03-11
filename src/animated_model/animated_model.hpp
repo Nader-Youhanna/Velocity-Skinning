@@ -3,6 +3,8 @@
 #include "cgp/cgp.hpp"
 #include "../skeleton/skeleton.hpp"
 
+using namespace cgp;
+
 struct rigged_model_structure {
     cgp::mesh mesh_bind_pose;  // Bind pose (/un-deformed) mesh
     cgp::mesh mesh_deformed;   // Deformed mesh
@@ -16,7 +18,7 @@ struct rigged_model_structure {
 struct animated_model_structure {
     rigged_model_structure rigged_mesh;
     skeleton_structure skeleton;
-    double k_floppy = 1;
+    float k_floppy = 0.5f;
 
     // Compute the Linear Blend Skinning deformation
     //  Once computed, the rigged_mesh contains the updated deformed meshes
@@ -29,4 +31,5 @@ struct animated_model_structure {
     void compute_rotational_velocities();
 
     void apply_floppy_transform();
+    void compute_linear_velocities();
 };

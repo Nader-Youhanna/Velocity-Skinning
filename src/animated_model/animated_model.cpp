@@ -218,8 +218,10 @@ void animated_model_structure::apply_floppy_transform()
     rigged_mesh.linear_velocities *= -k_floppy;
 
     // Apply floppy transform to rotational velocities
-    for (int kv = 0; kv < N_vertex; kv++) {
-        for (int kj = 0; kj < N_joint; kj++) {
+    for (int kv = 0; kv < N_vertex; kv++)
+    {
+        for (int kj = 0; kj < N_joint; kj++)
+        {
             double angle = -k_floppy * cgp::norm(rigged_mesh.rotational_velocities[kv][kj]);
         }
     }
@@ -236,7 +238,9 @@ void animated_model_structure::compute_linear_velocities()
 
     for (int kj = 0; kj < N_joint; kj++)
     {
-        mat4 Tj = skeleton.joint_matrix_global[kj] * skeleton.joint_matrix_global_bind_pose[kj].inverse_assuming_rigid_transform();
+        mat4 Tj = skeleton.joint_matrix_global[kj]
+            * skeleton.joint_matrix_global_bind_pose[kj]
+            .inverse_assuming_rigid_transform();
         vec3 translation = Tj.get_block_translation();
 
         for (int kv = 0; kv < N_vertex; kv++)
