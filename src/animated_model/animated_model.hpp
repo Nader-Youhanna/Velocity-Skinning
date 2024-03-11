@@ -23,6 +23,7 @@ struct animated_model_structure {
     // Compute the Linear Blend Skinning deformation
     //  Once computed, the rigged_mesh contains the updated deformed meshes
     void skinning_lbs();
+    void velocity_skinning();
 
     // Compute Dual Quaternion Skinning deformation
     //  Once computed, the rigged_mesh should contain the updated deformed meshes
@@ -31,5 +32,5 @@ struct animated_model_structure {
     void compute_rotational_velocities();
 
     void apply_floppy_transform();
-    void compute_linear_velocities();
+    void compute_linear_velocities(bool first_frame);
 };

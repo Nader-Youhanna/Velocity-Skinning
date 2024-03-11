@@ -287,7 +287,7 @@ void scene_structure::display_frame()
 
 	if (gui.is_velocity_skinning)
 	{
-		model.compute_linear_velocities();
+		model.compute_linear_velocities(first_frame);
 		model.compute_rotational_velocities();
 	}
 	model.skinning_lbs();
@@ -311,6 +311,8 @@ void scene_structure::display_frame()
 	}
 
 	model.skeleton.update_last_frame_matrix();
+	if (first_frame)
+		first_frame = false;
 }
 
 void scene_structure::display_gui()

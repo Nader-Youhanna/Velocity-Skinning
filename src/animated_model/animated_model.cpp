@@ -46,6 +46,11 @@ void animated_model_structure::skinning_lbs()
     }
 }
 
+void animated_model_structure::velocity_skinning()
+{
+    int N_vertex = rigged_mesh.mesh_bind_pose.position.size();
+}
+
 class dual_quat
 {
 public:
@@ -142,7 +147,6 @@ public:
     //private:
 };
 
-
 void animated_model_structure::skinning_dqs()
 {
     // ************************************************************** //
@@ -211,6 +215,33 @@ void animated_model_structure::compute_rotational_velocities()
     }
 }
 
+void animated_model_structure::compute_linear_velocities(bool first_frame)
+{
+    int N_vertex = rigged_mesh.mesh_bind_pose.position.size();
+    int N_joint = skeleton.size();
+    rigged_mesh.linear_velocities.resize_clear(N_vertex);
+    for (int kv = 0; kv < N_vertex; ++kv)
+    {
+        rigged_mesh.linear_velocities[kv].resize_clear(N_joint);
+    }
+
+    if (!first_frame)
+    {
+        for (int kj = 0; kj < N_joint; kj++)
+        {
+            mat4 Tj = skeleton.joint_matrix_global[kj]
+                * skeleton.joint_matrix_global_last_frame[kj]
+                .inverse_assuming_rigid_transform();
+            vec3 translation = Tj.get_block_translation();
+
+            for (int kv = 0; kv < N_vertex; kv++)
+            {
+                rigged_mesh.linear_velocities[kv][kj] = translation;
+            }
+        }
+    }
+}
+
 void animated_model_structure::apply_floppy_transform()
 {
     int N_vertex = rigged_mesh.mesh_bind_pose.position.size();
@@ -225,29 +256,6 @@ void animated_model_structure::apply_floppy_transform()
         for (int kj = 0; kj < N_joint; kj++)
         {
             double angle = -k_floppy * cgp::norm(rigged_mesh.rotational_velocities[kv][kj]);
-        }
-    }
-}
-void animated_model_structure::compute_linear_velocities()
-{
-    int N_vertex = rigged_mesh.mesh_bind_pose.position.size();
-    int N_joint = skeleton.size();
-    rigged_mesh.linear_velocities.resize_clear(N_vertex);
-    for (int kv = 0; kv < N_vertex; ++kv)
-    {
-        rigged_mesh.linear_velocities[kv].resize_clear(N_joint);
-    }
-
-    for (int kj = 0; kj < N_joint; kj++)
-    {
-        mat4 Tj = skeleton.joint_matrix_global[kj]
-            * skeleton.joint_matrix_global_last_frame[kj]
-            .inverse_assuming_rigid_transform();
-        vec3 translation = Tj.get_block_translation();
-
-        for (int kv = 0; kv < N_vertex; kv++)
-        {
-            rigged_mesh.linear_velocities[kv][kj] = translation;
         }
     }
 }
