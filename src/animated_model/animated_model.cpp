@@ -212,18 +212,32 @@ void animated_model_structure::compute_rotational_velocities()
     }
 }
 
-void animated_model_structure::apply_floppy_transform()
+void animated_model_structure::apply_floppy_transform(cgp::numarray<cgp::vec3>& result_transform, cgp::vec3 rotation_axis)
 {
-    // Apply floppy transform to linear velocities
-    rigged_mesh.linear_velocities *= -k_floppy;
+    int N_vertex = rigged_mesh.mesh_bind_pose.position.size();
+    int N_joint = skeleton.size();
 
-    // Apply floppy transform to rotational velocities
     for (int kv = 0; kv < N_vertex; kv++)
     {
+        cgp::vec3 psi = cgp::vec3(0.0, 0.0, 0.0);
         for (int kj = 0; kj < N_joint; kj++)
         {
-            double angle = -k_floppy * cgp::norm(rigged_mesh.rotational_velocities[kv][kj]);
+            // Compute linear transformation
+            cgp::vec3 psi_linear = -k_floppy * rigged_mesh.linear_velocities[kv][kj];
+            
+            // Compute rotational transformation
+            double rotation_angle = -k_floppy * cgp::norm(rigged_mesh.rotational_velocities[kv][kj]);
+            rotation_transform R = rotation_axis_angle(normalize(rotation_axis), rotation_angle);
+            mat3 identity_matrix = mat3(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0);
+            cgp::vec3 pu = skeleton.joint_matrix_global_bind_pose[kj].get_block_translation();
+            cgp::vec3 pu_rot_projection = R * pu;
+            cgp::vec3 psi_rotational = vec3(0.0, 0.0, 0.0); //TODO: Add actual computation
+            //cgp::vec3 psi_rotational = (R - identity_matrix) * (pu - pu_rot_projection);
+            
+            // Compute final transformation
+            psi += psi_linear + psi_rotational;
         }
+        result_transform[kv] = psi;
     }
 }
 void animated_model_structure::compute_linear_velocities()

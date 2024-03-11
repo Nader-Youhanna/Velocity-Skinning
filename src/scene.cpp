@@ -290,7 +290,7 @@ void scene_structure::display_frame()
 	{
 		model.compute_linear_velocities();
 		model.compute_rotational_velocities();
-		model.apply_floppy_transform();
+		//model.apply_floppy_transform();
 	}
 	model.skinning_lbs();
 	if(gui.is_dual_quaternion) {
