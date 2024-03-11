@@ -31,6 +31,6 @@ struct animated_model_structure {
 
     void compute_rotational_velocities();
 
-    void apply_floppy_transform();
-    void compute_linear_velocities(bool first_frame);
+    void apply_floppy_transform(cgp::numarray<cgp::vec3>& result_transform, cgp::vec3 rotation_axis);
+    void compute_linear_velocities();
 };
