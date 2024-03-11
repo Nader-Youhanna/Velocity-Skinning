@@ -34,7 +34,6 @@ void animated_model_structure::skinning_lbs()
     int N_vertex = rigged_mesh.mesh_bind_pose.position.size();
     for (int kv = 0; kv < N_vertex; ++kv)
     {
-
         mat4 M;
         for (int k = 0; k < rigged_mesh.skinning_weight[kv].size(); ++k)
         {
@@ -45,6 +44,11 @@ void animated_model_structure::skinning_lbs()
         rigged_mesh.mesh_deformed.position[kv] = M.transform_position(rigged_mesh.mesh_bind_pose.position[kv]);
         rigged_mesh.mesh_deformed.normal[kv] = M.transform_vector(rigged_mesh.mesh_bind_pose.normal[kv]);
     }
+}
+
+void animated_model_structure::velocity_skinning()
+{
+    int N_vertex = rigged_mesh.mesh_bind_pose.position.size();
 }
 
 class dual_quat
@@ -142,7 +146,6 @@ public:
     quaternion q_eps;
     //private:
 };
-
 
 void animated_model_structure::skinning_dqs()
 {
@@ -250,16 +253,37 @@ void animated_model_structure::compute_linear_velocities()
         rigged_mesh.linear_velocities[kv].resize_clear(N_joint);
     }
 
-    for (int kj = 0; kj < N_joint; kj++)
+    if (!first_frame)
     {
-        mat4 Tj = skeleton.joint_matrix_global[kj]
-            * skeleton.joint_matrix_global_bind_pose[kj]
-            .inverse_assuming_rigid_transform();
-        vec3 translation = Tj.get_block_translation();
-
-        for (int kv = 0; kv < N_vertex; kv++)
+        for (int kj = 0; kj < N_joint; kj++)
         {
-            rigged_mesh.linear_velocities[kv][kj] = translation;
+            mat4 Tj = skeleton.joint_matrix_global[kj]
+                * skeleton.joint_matrix_global_last_frame[kj]
+                .inverse_assuming_rigid_transform();
+            vec3 translation = Tj.get_block_translation();
+
+            for (int kv = 0; kv < N_vertex; kv++)
+            {
+                rigged_mesh.linear_velocities[kv][kj] = translation;
+            }
+        }
+    }
+}
+
+void animated_model_structure::apply_floppy_transform()
+{
+    int N_vertex = rigged_mesh.mesh_bind_pose.position.size();
+    int N_joint = skeleton.size();
+
+    // Apply floppy transform to linear velocities
+    rigged_mesh.linear_velocities *= -k_floppy;
+
+    // Apply floppy transform to rotational velocities
+    for (int kv = 0; kv < N_vertex; kv++)
+    {
+        for (int kj = 0; kj < N_joint; kj++)
+        {
+            double angle = -k_floppy * cgp::norm(rigged_mesh.rotational_velocities[kv][kj]);
         }
     }
 }

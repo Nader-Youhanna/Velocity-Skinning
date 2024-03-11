@@ -13,6 +13,8 @@ struct skeleton_structure {
     // joint frame matrix of the skeleton in the bind pose expressed in the global coordinate system
     cgp::numarray<cgp::mat4> joint_matrix_local_bind_pose;
 
+    cgp::numarray<cgp::mat4> joint_matrix_global_last_frame;
+
     // Storage of the parent index of the joint hierarchy.
     //   index_of_parent = parent_index[current_index]
     cgp::numarray<int> parent_index;
@@ -37,4 +39,6 @@ struct skeleton_structure {
 
     // Return the indices of the joint that are direct children of the current one
     cgp::numarray<int> child(int joint_index) const;
+
+    void update_last_frame_matrix();
 };

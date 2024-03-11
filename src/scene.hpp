@@ -46,6 +46,7 @@ struct scene_structure : cgp::scene_inputs_generic {
 	// Elements and shapes of the scene
 	// ****************************** //
 
+	bool first_frame = true;
 	surface_model model_type;
 	animated_model_structure model;
 	mesh_drawable model_drawable;

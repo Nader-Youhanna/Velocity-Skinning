@@ -61,3 +61,9 @@ void skeleton_structure::compute_angular_velocity(int joint, cgp::vec3 const& ro
     cgp::vec3 angular_velocity = cgp::normalize(rotation_axis) * rotation_angle;
     angular_velocities[joint] = angular_velocity;
 }
+
+
+void skeleton_structure::update_last_frame_matrix()
+{
+    joint_matrix_global_last_frame = joint_matrix_global;
+}

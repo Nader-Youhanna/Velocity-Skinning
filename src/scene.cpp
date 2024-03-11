@@ -245,6 +245,8 @@ void scene_structure::animate_skeleton() {
 
 		if(gui.is_bending_motion) {
 			apply_rotation_to_joint(1, {0,1,0}, Pi/2*std::cos(timer.t));
+			//apply_rotation_to_joint(1, {0,1,0}, timer.t);
+			//apply_rotation_to_joint(1, {0,1,0}, 0.05);
 		}
 	}
 
@@ -281,14 +283,11 @@ void scene_structure::display_frame()
 
 	animate_skeleton();
 	model.skeleton.update_joint_matrix_local_to_global();
-
-
-
 	
 
 	if (gui.is_velocity_skinning)
 	{
-		model.compute_linear_velocities();
+		model.compute_linear_velocities(first_frame);
 		model.compute_rotational_velocities();
 		//model.apply_floppy_transform();
 	}
@@ -312,6 +311,9 @@ void scene_structure::display_frame()
 		draw(sk_drawable, environment);
 	}
 
+	model.skeleton.update_last_frame_matrix();
+	if (first_frame)
+		first_frame = false;
 }
 
 void scene_structure::display_gui()
