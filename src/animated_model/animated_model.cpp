@@ -5,7 +5,31 @@
 
 using namespace cgp;
 
+void animated_model_structure::print_matrix4(cgp::mat4 mat)
+{
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            std::cout << mat[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "--------------------------------------------\n";
+}
 
+void animated_model_structure::print_matrix3(cgp::mat3 mat)
+{
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            std::cout << mat[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "--------------------------------------------\n";
+}
 
 void animated_model_structure::skinning_lbs()
 {
@@ -239,6 +263,7 @@ void animated_model_structure::compute_velocities(bool first_frame)
         rigged_mesh.linear_velocities[kv].resize_clear(N_joint);
         rigged_mesh.rotational_velocities[kv].resize_clear(N_joint);
     }
+    ////-----------------------------------------------------------------////
 
     // If not first frame, then last frame matrices exist
     if (!first_frame)
@@ -266,17 +291,20 @@ void animated_model_structure::compute_velocities(bool first_frame)
             M_parent.set_block_translation(vec3(0.f, 0.f, 0.f));
 
             // Get the global transformation matrix
-            mat4 Tj_global = M_parent * Tj_local;
+            //mat4 Tj_global = M_parent * Tj_local;
+            mat4 Tj_global = Tj_local;
 
             // Extract the translation
             vec3 translation = Tj_global.get_block_translation();
 
             // Extract the rotation
             mat3 R_mat = Tj_global.get_block_linear();
+            //print_matrix3(R_mat);
             rotation_transform rot = rotation_transform::from_matrix(R_mat);
             vec3 rot_axis; float angle;
             rot.to_axis_angle(rot_axis, angle);
             vec3 angular_velocity = cgp::normalize(rot_axis) * angle;
+            std::cout << "Rotational velocity: " << angular_velocity << std::endl;
 
             // for each vertex kv
             for (int kv = 0; kv < N_vertex; kv++)
@@ -286,11 +314,15 @@ void animated_model_structure::compute_velocities(bool first_frame)
                 rigged_mesh.linear_velocities[kv][kj] = translation;
 
                 // Set the rotational velocities
-                vec3 pi = rigged_mesh.mesh_deformed.position[kv];
-                cgp::vec3 pu = skeleton.joint_matrix_global_bind_pose[kj].get_block_translation();
-                rigged_mesh.rotational_velocities[kv][kj] = cgp::cross(angular_velocity, (pu - pi));
+                //vec3 pi = skeleton.joint_matrix_global_bind_pose[kj].get_block_translation();
+                //vec3 pu = rigged_mesh.mesh_deformed.position[kv];
+                //rigged_mesh.rotational_velocities[kv][kj] = cgp::cross(angular_velocity, (pu - pi));
+                rigged_mesh.rotational_velocities[kv][kj] = angular_velocity;
 
             }
         }
+        int kv = 2400;
+        int kj = 1;
     }
+
 }

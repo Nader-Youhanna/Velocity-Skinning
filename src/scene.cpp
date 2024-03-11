@@ -287,8 +287,7 @@ void scene_structure::display_frame()
 
 	if (gui.is_velocity_skinning)
 	{
-		model.compute_linear_velocities(first_frame);
-		model.compute_rotational_velocities(first_frame);
+		model.compute_velocities(first_frame);
 		//model.apply_floppy_transform();
 	}
 	model.skinning_lbs();

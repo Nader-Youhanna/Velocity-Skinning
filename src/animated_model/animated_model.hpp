@@ -29,7 +29,8 @@ struct animated_model_structure {
     //  Once computed, the rigged_mesh should contain the updated deformed meshes
     void skinning_dqs();
 
-
+    void print_matrix4(cgp::mat4 mat);
+    void print_matrix3(cgp::mat3 mat);
     void apply_floppy_transform(cgp::numarray<cgp::vec3>& result_transform, cgp::vec3 rotation_axis);
     void compute_velocities(bool first_frame);
 };
